@@ -1,0 +1,23 @@
+server:
+  port: 8666
+
+eureka:
+  client:
+#    registerWithEureka: false
+#    fetchRegistry: false
+    service-url:
+      defaultZone: http://localhost:1110/eureka/
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/tangminyan/application
+          username: tangminyan
+          password: tang510434
+        default-application-name: application-dev2
+        default-label: master
+#          searchPaths: '{profile}'
