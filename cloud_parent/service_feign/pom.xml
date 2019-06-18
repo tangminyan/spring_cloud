@@ -6,18 +6,30 @@
         <groupId>my_spring_cloud</groupId>
         <artifactId>cloud_parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath>pom.xml</relativePath> <!-- lookup parent from repository -->
+        <relativePath>pom.xml</relativePath>
     </parent>
     <groupId>eureka</groupId>
-    <artifactId>eureka_client</artifactId>
+    <artifactId>service_feign</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>eureka_client</name>
+    <name>service_feign</name>
     <description>Demo project for Spring Boot</description>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-feign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
         </dependency>
     </dependencies>
 

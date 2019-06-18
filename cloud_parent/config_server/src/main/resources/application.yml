@@ -15,9 +15,7 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/tangminyan/application
+          uri: https://github.com/tangminyan/application.git
           username: tangminyan
           password: tang510434
-        default-application-name: application-dev2
-        default-label: master
 #          searchPaths: '{profile}'
