@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableCircuitBreaker  //用于断路器
-@Ena
+
 @ComponentScan(basePackages = "eureka.service_ribbon")
 public class ServiceRibbonApplication {
 
