@@ -528,3 +528,75 @@ Feign内部已经支持了断路器，所以不需要想Ribbon方式一样，在
 		    }
 		}
 
+
+
+## Java I/O
+
+参考：[https://blog.csdn.net/analogous_love/article/details/79796358](https://blog.csdn.net/analogous_love/article/details/79796358)
+
+### 1、try-with-resources语句
+
+   BufferReader避免finally中套try-catch，举例：
+
+	static String readFirstLineFromFile(String path) throws IOException {
+		try (BufferedReader br =
+			new BufferedReader(new FileReader(path))) {
+		return br.readLine();
+		}
+	}
+ 声明语句紧跟着在try关键词的圆括号里面。BufferedReader从Java SE7开始就实现了java.lang.AutoCloseable接口。因为BufferedReader声明在了try-with-resources里面，所以无论try语句是正常结束还是异常结束（比方说BufferedReader.readLine方法抛出一个IOException异常），它都会被关闭。
+
+### 2、异步IO AsynchronousFileChannel 读取
+
+参考：[http://ifeve.com/java-nio-asynchronousfilechannel/](http://ifeve.com/java-nio-asynchronousfilechannel/)
+
+	Path path = Paths.get("data/test.xml");
+	AsynchronousFileChannel fileChannel = AsynchronousFileChannel.open(path, StandardOpenOption.READ);
+
+第一个参数是一个 PATH 的对像实例，它指向了那个与 AsynchronousFileChannel 相关联的文件。
+
+第二个参数是一个或多个操作选项，它决定了 AsynchronousFileChannel 将对目标文件做何种操作。示例代码中我们使用了 StandardOpenOption.READ ，它表明我们将要对目标文件进行读操作。
+
+* 1.Future
+
+		AsynchronousFileChannel channel = AsynchronousFileChannel.open(Paths.get(uri), StandardOpenOption.READ);
+	    System.out.println("当前线程: " + Thread.currentThread().getName());
+	    ByteBuffer buffer = ByteBuffer.allocate(1024);
+	    long position = 0;
+		Future<Integer> operation = channel.read(buffer, position);
+	    while (!operation.isDone());
+	    buffer.flip();
+	    byte[] data = new byte[buffer.limit()];
+	    buffer.get(data);
+	    buffer.clear();
+
+首先创建了一个 AsynchronousFileChannel 对象，然后调用它的read()方法返回一个Future。其中read()方法需要两个参数，一个是ByteBuffer，另一个是读取文件的开始位置。然后通过循环调用isDone() 方法检测读取过程是否完成，完成后 isDone()方法将返回true。尽管这样让cpu空转了一会，但是我们还是应该等读取操作完成后再进行后续的步骤。
+一旦读取完成，数据被存储到ByteBuffer，然后将数据转化为字符串既而输出。
+
+* 2.CompletionHandler
+
+		AsynchronousFileChannel channel = AsynchronousFileChannel.open(Paths.get(uri), StandardOpenOption.READ);
+		ByteBuffer buffer = ByteBuffer.allocate(1024); //创建缓冲区
+		long position = 0;
+		channel.read(buffer, position, buffer, new CompletionHandler<Integer, ByteBuffer>() {
+			@Override
+			public void completed(Integer result, ByteBuffer attachment) {
+				System.out.println("Read Done");
+				System.out.println("result = " + result);
+				buffer.flip();
+				byte[] data = new byte[buffer.limit()];
+				buffer.get(data);
+				System.out.println(new String(data));
+				buffer.clear();
+			}
+
+			@Override
+			public void failed(Throwable exc, ByteBuffer attachment) {
+				System.out.println("Read failed");
+				exc.printStackTrace();
+			}
+		});
+
+一旦读取操作完成，CompletionHandler的 complete() 方法将会被调用。它的第一个参数是个 Integer类型，表示读取的字节数。第二个参数 attachment 是 ByteBuffer 类型的，用来存储读取的数据。它其实就是由 read() 方法的第三个参数。当前示例中，我们选用 ByteBuffer 来存储数据，其实我们也可以选用其他的类型。
+
+读取失败的时候，CompletionHandler的 failed()方法会被调用。
